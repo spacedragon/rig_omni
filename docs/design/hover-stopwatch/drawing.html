@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}</style>
+<title>Hover StopWatch 改装图纸</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* 布局：一张工程图纸。顶部标题栏，两张图各占一节，后面是引脚表和待确认清单。 */
+:root {
+  --bg: #f3f5f8;
+  --sheet: #ffffff;
+  --fg: #16202e;
+  --muted: #5a6779;
+  --line: #c9d1dc;
+  --v74: #c2410c;   /* 7.4 V 电池电压 */
+  --v5: #a16207;    /* 5 V */
+  --sig: #0f766e;   /* 电机总线 */
+  --uart: #6d28d9;  /* 摄像头串口 */
+  --warn-bg: #fff4e0;
+  --warn-fg: #7a4a00;
+  --font-text: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, "PingFang SC", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141b; --sheet: #161d27; --fg: #e3e9f1; --muted: #95a2b4; --line: #303b4a;
+    --v74: #fb923c; --v5: #facc15; --sig: #2dd4bf; --uart: #b79bff;
+    --warn-bg: #33270f; --warn-fg: #f5d08a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141b; --sheet: #161d27; --fg: #e3e9f1; --muted: #95a2b4; --line: #303b4a;
+  --v74: #fb923c; --v5: #facc15; --sig: #2dd4bf; --uart: #b79bff;
+  --warn-bg: #33270f; --warn-fg: #f5d08a; color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-text); font-size: 15px; line-height: 1.65;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+.titleblock { background: var(--sheet); border: 1.5px solid var(--fg); display: grid; grid-template-columns: 1fr auto; }
+.titleblock h1 { font-size: 26px; line-height: 1.25; font-weight: 600; margin: 0; text-wrap: balance; }
+.tb-main { padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tb-main p { margin: 0; color: var(--muted); max-width: 62ch; }
+.tb-cells { display: grid; grid-template-columns: repeat(2, minmax(96px, auto)); border-left: 1.5px solid var(--fg); }
+.tb-cells div { padding: 8px 14px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+.tb-cells div:nth-child(2n) { border-right: 0; }
+.tb-cells div:nth-last-child(-n+2) { border-bottom: 0; }
+.tb-cells dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); }
+.tb-cells dd { margin: 0; font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+@media (max-width: 640px) {
+  .titleblock { grid-template-columns: 1fr; }
+  .tb-cells { border-left: 0; border-top: 1.5px solid var(--fg); }
+}
+
+section { display: flex; flex-direction: column; gap: 12px; }
+h2 { font-size: 18px; font-weight: 600; margin: 0; display: flex; gap: 10px; align-items: baseline; }
+h2 .no { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: .08em; }
+section > p { margin: 0; max-width: 68ch; }
+
+figure { margin: 0; background: var(--sheet); border: 1px solid var(--line); }
+.scroll { overflow-x: auto; }
+figure svg { display: block; width: 100%; height: auto; min-width: 720px; color: var(--fg); font-family: var(--font-mono); }
+figcaption { padding: 10px 16px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
+
+/* SVG 部件 */
+.box { fill: var(--sheet); stroke: currentColor; stroke-width: 1.5; }
+.box-tbd { fill: var(--warn-bg); stroke: var(--warn-fg); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.zone { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 8 6; }
+.t { fill: currentColor; font-size: 12.5px; }
+.t-b { fill: currentColor; font-size: 13.5px; font-weight: 600; }
+.t-m { fill: var(--muted); font-size: 11.5px; }
+.t-warn { fill: var(--warn-fg); font-size: 11.5px; }
+.w { fill: none; stroke-width: 2.5; stroke-linejoin: round; }
+.w74 { stroke: var(--v74); } .w5 { stroke: var(--v5); } .wsig { stroke: var(--sig); } .wuart { stroke: var(--uart); }
+.wgnd { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 4; fill: none; }
+.l74 { fill: var(--v74); } .l5 { fill: var(--v5); } .lsig { fill: var(--sig); } .luart { fill: var(--uart); }
+.lbl { font-size: 12px; font-weight: 600; }
+.dot74 { fill: var(--v74); } .dot5 { fill: var(--v5); } .dotsig { fill: var(--sig); }
+.part { fill: var(--bg); stroke: currentColor; stroke-width: 1.5; }
+.screen { fill: var(--sheet); stroke: currentColor; stroke-width: 1; }
+.env { fill: none; stroke: currentColor; stroke-width: 2; }
+.dim { stroke: var(--muted); stroke-width: 1; fill: none; }
+.cl { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 14 4 3 4; fill: none; }
+.free { fill: var(--warn-bg); stroke: none; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); padding: 10px 16px 0; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 22px; height: 0; border-top: 3px solid; display: inline-block; }
+.k74 { border-color: var(--v74); } .k5 { border-color: var(--v5); } .ksig { border-color: var(--sig); } .kuart { border-color: var(--uart); }
+.kgnd { border-top: 2px dashed var(--muted) !important; }
+
+.tablewrap { overflow-x: auto; background: var(--sheet); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; font-weight: 500; color: var(--muted); white-space: nowrap; }
+td.pin { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
+
+.open { background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-fg); padding: 14px 18px; }
+.open ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; max-width: 70ch; }
+.open strong { font-weight: 600; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.two > div { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+h3 { font-size: 14.5px; font-weight: 600; margin: 0; }
+</style>
+
+</head>
+<body>
+<div class="page">
+
+<header class="titleblock">
+  <div class="tb-main">
+    <h1>RIG Hover 换装 M5Stack StopWatch</h1>
+    <p>用 StopWatch 取代原主控板和屏幕，摄像头改用 AtomS3R-M12。本图给出接线方式和头部内部布局，用来指导供电板和头部外壳的设计。</p>
+  </div>
+  <dl class="tb-cells">
+    <div><dt>版本</dt><dd>D · 概念</dd></div>
+    <div><dt>日期</dt><dd>2026-11-13</dd></div>
+    <div><dt>单位</dt><dd>mm</dd></div>
+    <div><dt>状态</dt><dd>未实物验证</dd></div>
+  </dl>
+</header>
+
+<section>
+  <h2><span class="no">图 1</span>电气接线</h2>
+  <p>机身负责电池、降压和三个电机。头部装 StopWatch 和摄像头。两者之间只过 4 根线：5V、地、总线发送、总线接收。</p>
+  <figure>
+    <div class="legend">
+      <span><i class="k74"></i>7.4 V 电池电压</span>
+      <span><i class="k5"></i>5 V</span>
+      <span><i class="ksig"></i>电机总线 1 Mbps</span>
+      <span><i class="kuart"></i>摄像头串口</span>
+      <span><i class="kgnd"></i>公共地</span>
+    </div>
+    <div class="scroll">
+    <svg viewBox="0 0 960 590" role="img" aria-label="接线图：机身里的 2S 电池经 7.4V 给降压模块和三个电机供电；降压模块输出 5V 穿过颈部给头部的 StopWatch 和 AtomS3R-M12；StopWatch 的 G10 和 G11 穿过颈部，经合并电路接到三个电机的总线；StopWatch 的 G3 和 G4 接摄像头的 G1 和 G2。">
+      <!-- 区域 -->
+      <rect class="zone" x="20" y="24" width="548" height="546"/>
+      <text class="t-m" x="34" y="46">机身</text>
+      <rect class="zone" x="640" y="24" width="300" height="546"/>
+      <text class="t-m" x="654" y="46">头部（随头部舵机转动）</text>
+      <text class="t-m" x="604" y="290" text-anchor="middle">颈部</text>
+      <text class="t-m" x="604" y="306" text-anchor="middle">4 芯</text>
+
+      <!-- 电池 -->
+      <rect class="box" x="40" y="80" width="150" height="70"/>
+      <text class="t-b" x="115" y="110" text-anchor="middle">2S 锂电池</text>
+      <text class="t-m" x="115" y="130" text-anchor="middle">含保护板与充电</text>
+
+      <!-- 降压 -->
+      <rect class="box" x="240" y="160" width="140" height="56"/>
+      <text class="t-b" x="310" y="184" text-anchor="middle">降压模块</text>
+      <text class="t-m" x="310" y="202" text-anchor="middle">7.4 V → 5 V</text>
+
+      <!-- 电机 -->
+      <rect class="box" x="40" y="400" width="120" height="56"/>
+      <text class="t-b" x="100" y="424" text-anchor="middle">左轮 KP4012</text>
+      <text class="t-m" x="100" y="442" text-anchor="middle">ID 1</text>
+      <rect class="box" x="190" y="400" width="120" height="56"/>
+      <text class="t-b" x="250" y="424" text-anchor="middle">右轮 KP4012</text>
+      <text class="t-m" x="250" y="442" text-anchor="middle">ID 2</text>
+      <rect class="box" x="340" y="400" width="120" height="56"/>
+      <text class="t-b" x="400" y="424" text-anchor="middle">头部舵机 EM3</text>
+      <text class="t-m" x="400" y="442" text-anchor="middle">ID 3</text>
+
+      <!-- 7.4V -->
+      <polyline class="w w74" points="190,115 310,115 310,160"/>
+      <polyline class="w w74" points="215,115 215,350"/>
+      <polyline class="w w74" points="100,400 100,350 400,350 400,400"/>
+      <line class="w w74" x1="250" y1="350" x2="250" y2="400"/>
+      <circle class="dot74" cx="215" cy="115" r="4.5"/>
+      <circle class="dot74" cx="215" cy="350" r="4.5"/>
+      <circle class="dot74" cx="250" cy="350" r="4.5"/>
+      <text class="lbl l74" x="228" y="106">7.4 V</text>
+      <text class="lbl l74" x="300" y="340">7.4 V 给三个电机</text>
+
+      <!-- 5V -->
+      <polyline class="w w5" points="380,188 640,188 640,220 670,220"/>
+      <polyline class="w w5" points="640,188 640,72 670,72"/>
+      <circle class="dot5" cx="640" cy="188" r="4.5"/>
+      <text class="lbl l5" x="430" y="179">5 V</text>
+
+      <!-- 合并电路 -->
+      <rect class="box-tbd" x="456" y="462" width="100" height="56"/>
+      <text class="t-warn" x="506" y="486" text-anchor="middle" font-weight="600">收发合并</text>
+      <text class="t-warn" x="506" y="503" text-anchor="middle">待确认</text>
+
+      <!-- 总线 -->
+      <polyline class="w wsig" points="100,456 100,490 456,490"/>
+      <line class="w wsig" x1="250" y1="456" x2="250" y2="490"/>
+      <line class="w wsig" x1="400" y1="456" x2="400" y2="490"/>
+      <circle class="dotsig" cx="250" cy="490" r="4.5"/>
+      <circle class="dotsig" cx="400" cy="490" r="4.5"/>
+      <text class="lbl lsig" x="120" y="510">总线（单线）</text>
+      <polyline class="w wsig" points="556,478 740,478 740,330"/>
+      <polyline class="w wsig" points="556,502 780,502 780,330"/>
+      <text class="lbl lsig" x="604" y="470" text-anchor="middle">发送</text>
+      <text class="lbl lsig" x="604" y="522" text-anchor="middle">接收</text>
+      <text class="lbl lsig" x="734" y="350" text-anchor="end">G10</text>
+      <text class="lbl lsig" x="788" y="350">G11</text>
+
+      <!-- 摄像头 -->
+      <rect class="box" x="670" y="40" width="250" height="64"/>
+      <text class="t-b" x="795" y="66" text-anchor="middle">AtomS3R-M12</text>
+      <text class="t-m" x="795" y="86" text-anchor="middle">OV3660 · 视场角 120°</text>
+
+      <!-- StopWatch -->
+      <rect class="box" x="670" y="180" width="250" height="150"/>
+      <text class="t-b" x="795" y="238" text-anchor="middle">M5Stack StopWatch</text>
+      <text class="t-m" x="795" y="258" text-anchor="middle">主控 · 屏幕 · 音频 · 姿态</text>
+      <text class="t-m" x="678" y="208">USB-C 输入</text>
+      <text class="t-m" x="760" y="320" text-anchor="middle">Grove 口</text>
+
+      <!-- 摄像头串口 -->
+      <line class="w wuart" x1="820" y1="104" x2="820" y2="180"/>
+      <line class="w wuart" x1="850" y1="104" x2="850" y2="180"/>
+      <text class="lbl luart" x="812" y="122" text-anchor="end">G1</text>
+      <text class="lbl luart" x="858" y="122">G2</text>
+      <text class="lbl luart" x="812" y="172" text-anchor="end">G3</text>
+      <text class="lbl luart" x="858" y="172">G4</text>
+      <text class="t-m" x="690" y="146">串口 921600</text>
+
+      <!-- 地 -->
+      <line class="wgnd" x1="40" y1="548" x2="920" y2="548"/>
+      <text class="t-m" x="44" y="540">公共地：所有模块共地，占颈部线束 1 芯</text>
+    </svg>
+    </div>
+    <figcaption>StopWatch 的 5V 从 USB-C 口进，摄像头的 5V 从它自己的 Grove 口进。StopWatch 的 Grove 口只用 G10、G11 和地，它的 5V 脚是对外输出，不要接到 5V 上。</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2><span class="no">图 2</span>头部内部布局</h2>
+  <p>头部是一个直径 80、深 40 的圆鼓，StopWatch 嵌在正面中心，表面与头壳齐平。摄像头装在头顶的小舱里，舱体下沿沉入头壳 4。StopWatch 背后有约 22 的空间放 USB-C 弯头、线束和扬声器出音腔。</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 920 510" style="min-width: 800px" role="img" aria-label="头部布局图，比例 4 像素对 1 毫米。正视图：直径 80 的圆形头壳，中心是直径 52 的 StopWatch，头顶是 32 乘 28 的摄像头舱，里面是 26.4 乘 24 的 AtomS3R-M12，头部加舱体总高 104。侧视图：头壳深 40，摄像头舱深 30，摄像头深 22.5，StopWatch 深 15.5，背后有约 22 毫米空间。">
+      <text class="t-b" x="60" y="26">正视</text>
+      <text class="t-b" x="620" y="26">侧视</text>
+      <text class="t-m" x="664" y="26">← 正面</text>
+
+      <!-- 正视 -->
+      <line class="cl" x1="220" y1="30" x2="220" y2="466"/>
+      <rect class="env" x="156" y="40" width="128" height="112" rx="20"/>
+      <rect class="part" x="167.2" y="48" width="105.6" height="96" rx="6"/>
+      <circle class="screen" cx="220" cy="96" r="28"/>
+      <circle class="part" cx="220" cy="96" r="13"/>
+      <circle class="env" cx="220" cy="296" r="160"/>
+      <circle class="part" cx="220" cy="296" r="104"/>
+      <circle class="screen" cx="220" cy="296" r="89"/>
+      <text class="t-m" x="220" y="292" text-anchor="middle">屏幕 Ø44.5</text>
+      <text class="t-m" x="220" y="310" text-anchor="middle">466 × 466</text>
+
+      <!-- 标注：正视 -->
+      <line class="dim" x1="60" y1="476" x2="380" y2="476"/>
+      <line class="dim" x1="60" y1="469" x2="60" y2="483"/><line class="dim" x1="380" y1="469" x2="380" y2="483"/>
+      <text class="t" x="220" y="496" text-anchor="middle">头壳 Ø80</text>
+      <line class="dim" x1="36" y1="40" x2="36" y2="456"/>
+      <line class="dim" x1="28" y1="40" x2="44" y2="40"/><line class="dim" x1="28" y1="456" x2="44" y2="456"/>
+      <text class="t" x="26" y="248" text-anchor="middle" transform="rotate(-90 26 248)">104</text>
+      <line class="dim" x1="284" y1="62" x2="398" y2="62"/>
+      <text class="t-b" x="404" y="58">摄像头舱</text>
+      <text class="t" x="404" y="76">32 × 28</text>
+      <line class="dim" x1="272.8" y1="112" x2="398" y2="112"/>
+      <text class="t-b" x="404" y="110">AtomS3R-M12</text>
+      <text class="t" x="404" y="128">26.4 × 24.0</text>
+      <line class="dim" x1="324" y1="296" x2="398" y2="296"/>
+      <text class="t-b" x="404" y="292">StopWatch</text>
+      <text class="t" x="404" y="310">Ø52.0</text>
+
+      <!-- 侧视 -->
+      <rect class="env" x="620" y="40" width="120" height="112" rx="16"/>
+      <rect class="part" x="628" y="48" width="90" height="96" rx="4"/>
+      <rect class="free" x="682" y="192" width="90" height="208"/>
+      <rect class="env" x="620" y="136" width="160" height="320" rx="40"/>
+      <rect class="part" x="620" y="192" width="62" height="208" rx="6"/>
+      <text class="t-warn" x="731" y="296" text-anchor="middle" transform="rotate(-90 731 296)">走线与出音腔 约 22</text>
+
+      <!-- 标注：侧视 -->
+      <line class="dim" x1="620" y1="476" x2="780" y2="476"/>
+      <line class="dim" x1="620" y1="469" x2="620" y2="483"/><line class="dim" x1="780" y1="469" x2="780" y2="483"/>
+      <text class="t" x="700" y="496" text-anchor="middle">头壳深 40</text>
+      <line class="dim" x1="718" y1="96" x2="794" y2="96"/>
+      <text class="t" x="800" y="100">深 22.5</text>
+      <line class="dim" x1="682" y1="414" x2="682" y2="430"/>
+      <line class="dim" x1="682" y1="430" x2="794" y2="430"/>
+      <text class="t" x="800" y="426">StopWatch</text>
+      <text class="t" x="800" y="444">深 15.5</text>
+    </svg>
+    </div>
+    <figcaption>按 4 像素 : 1 mm 绘制。模块尺寸来自 M5Stack 官方文档；镜头外径和 StopWatch 的 USB-C 口位置图中是示意，开孔前请用官方 3D 文件核对。</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2><span class="no">图 3</span>整机结构（圆头造型）</h2>
+  <p>造型沿用原项目：圆头、细颈、两个大轮夹着底盘。轮子用自制轮圈套在轮毂电机外面，直径 70；轮外侧宽 90；底盘内腔 54 × 50。头部舵机在两轮之间，输出轴经一段 10 高的细颈带动头部。整机高 192。</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1010 700" style="min-width: 880px" role="img" aria-label="圆头造型整机结构概念图，比例 3 像素对 1 毫米。正视和侧视：两个直径 70 的轮子，外侧宽 90；轮间底盘从下到上是电池、供电板、头部舵机；细颈上方是直径 80 的圆形头部，中心是 StopWatch，头顶是摄像头舱，总高 192，虚线标出原机高度 139。俯视：头部绕竖直轴转动正负 75 度，扫掠直径约 89。">
+      <text class="t-b" x="65" y="30">正视</text>
+      <text class="t-b" x="385" y="30">侧视</text>
+      <text class="t-m" x="429" y="30">← 正面</text>
+      <text class="t-b" x="715" y="30">俯视</text>
+
+      <!-- 地面 -->
+      <line class="dim" x1="16" y1="640" x2="700" y2="640"/>
+
+      <!-- ===== 正视 cx=200 ===== -->
+      <rect class="part" x="65" y="430" width="48" height="210" rx="10"/>
+      <rect class="part" x="287" y="430" width="48" height="210" rx="10"/>
+      <rect class="env" x="119" y="406" width="162" height="204" rx="6"/>
+      <rect class="part" x="125" y="529" width="150" height="75" rx="3"/>
+      <text class="t-m" x="200" y="571" text-anchor="middle">电池</text>
+      <rect class="part" x="125" y="508" width="150" height="12" rx="2"/>
+      <rect class="part" x="182" y="406" width="36" height="69" rx="2"/>
+      <text class="t-m" x="244" y="445" text-anchor="middle">舵机</text>
+      <rect class="part" x="185" y="376" width="30" height="30" rx="2"/>
+      <rect class="env" x="152" y="64" width="96" height="84" rx="14"/>
+      <rect class="part" x="160.4" y="70" width="79.2" height="72" rx="5"/>
+      <circle class="screen" cx="200" cy="106" r="21"/>
+      <circle class="part" cx="200" cy="106" r="10"/>
+      <circle class="env" cx="200" cy="256" r="120"/>
+      <circle class="part" cx="200" cy="256" r="78"/>
+      <circle class="screen" cx="200" cy="256" r="66.7"/>
+
+      <!-- 标注：正视 -->
+      <line class="dim" x1="24" y1="64" x2="24" y2="640"/>
+      <line class="dim" x1="18" y1="64" x2="30" y2="64"/>
+      <text class="t" x="15" y="352" text-anchor="middle" transform="rotate(-90 15 352)">总高 192</text>
+      <line class="dim" x1="48" y1="64" x2="48" y2="376"/>
+      <line class="dim" x1="42" y1="64" x2="54" y2="64"/><line class="dim" x1="42" y1="376" x2="54" y2="376"/>
+      <text class="t" x="40" y="220" text-anchor="middle" transform="rotate(-90 40 220)">头部 104</text>
+      <line class="dim" x1="48" y1="406" x2="48" y2="640"/>
+      <line class="dim" x1="42" y1="406" x2="54" y2="406"/>
+      <text class="t" x="40" y="523" text-anchor="middle" transform="rotate(-90 40 523)">底盘 78</text>
+      <line class="dim" x1="65" y1="662" x2="335" y2="662"/>
+      <line class="dim" x1="65" y1="655" x2="65" y2="669"/><line class="dim" x1="335" y1="655" x2="335" y2="669"/>
+      <text class="t" x="200" y="682" text-anchor="middle">轮外侧宽 90</text>
+
+      <!-- 原机高度参考线 -->
+      <line x1="80" y1="223" x2="570" y2="223" stroke="var(--warn-fg)" stroke-width="1.5" stroke-dasharray="6 5" fill="none"/>
+      <text class="t-warn" x="328" y="216">原机高 139</text>
+
+      <!-- ===== 侧视 cx=490 ===== -->
+      <line class="cl" x1="490" y1="44" x2="490" y2="652"/>
+      <rect class="env" x="415" y="406" width="150" height="204" rx="6"/>
+      <rect class="part" x="430" y="529" width="120" height="75" rx="3"/>
+      <rect class="part" x="421" y="508" width="138" height="12" rx="2"/>
+      <rect class="part" x="455.5" y="406" width="69" height="69" rx="2"/>
+      <rect class="part" x="565" y="550" width="7" height="16" rx="1"/>
+      <circle cx="490" cy="535" r="105" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="490" cy="535" r="60" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4"/>
+      <rect class="part" x="475" y="376" width="30" height="30" rx="2"/>
+      <rect class="env" x="430" y="64" width="90" height="84" rx="12"/>
+      <rect class="part" x="436" y="70" width="67.5" height="72" rx="4"/>
+      <rect class="env" x="430" y="136" width="120" height="240" rx="30"/>
+      <rect class="part" x="430" y="178" width="46.5" height="156" rx="5"/>
+
+      <!-- 标注：侧视 -->
+      <line class="dim" x1="503.5" y1="106" x2="606" y2="106"/>
+      <text class="t-b" x="612" y="102">AtomS3R-M12</text>
+      <text class="t-m" x="612" y="119">头顶摄像头舱</text>
+      <line class="dim" x1="476.5" y1="256" x2="606" y2="256"/>
+      <text class="t-b" x="612" y="252">StopWatch</text>
+      <text class="t-m" x="612" y="269">屏幕与主控</text>
+      <line class="dim" x1="505" y1="391" x2="606" y2="391"/>
+      <text class="t-b" x="612" y="388">细颈</text>
+      <text class="t-m" x="612" y="405">转动分界，过 4 芯线</text>
+      <line class="dim" x1="524.5" y1="444" x2="606" y2="444"/>
+      <text class="t-b" x="612" y="448">头部舵机</text>
+      <line class="dim" x1="559" y1="496" x2="606" y2="496"/>
+      <line class="dim" x1="559" y1="496" x2="559" y2="508"/>
+      <text class="t-b" x="612" y="492">供电板</text>
+      <text class="t-m" x="612" y="509">降压与收发合并</text>
+      <line class="dim" x1="572" y1="558" x2="606" y2="558"/>
+      <text class="t-b" x="612" y="562">充电口与开关</text>
+      <line class="dim" x1="550" y1="592" x2="606" y2="592"/>
+      <text class="t-b" x="612" y="596">2S 电池</text>
+      <text class="t-m" x="612" y="613">舱位 50 × 40 × 25</text>
+      <line class="dim" x1="430" y1="662" x2="550" y2="662"/>
+      <line class="dim" x1="430" y1="655" x2="430" y2="669"/><line class="dim" x1="550" y1="655" x2="550" y2="669"/>
+      <text class="t" x="490" y="682" text-anchor="middle">头壳深 40</text>
+
+      <!-- ===== 俯视 center (850,230) ===== -->
+      <rect class="part" x="715" y="125" width="48" height="210" rx="10"/>
+      <rect class="part" x="937" y="125" width="48" height="210" rx="10"/>
+      <rect class="env" x="769" y="155" width="162" height="150" rx="6"/>
+      <circle cx="850" cy="230" r="134" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 5"/>
+      <rect x="730" y="170" width="240" height="120" rx="30" fill="none" stroke="var(--uart)" stroke-width="1.5" stroke-dasharray="7 5" transform="rotate(-75 850 230)"/>
+      <rect x="730" y="170" width="240" height="120" rx="30" fill="none" stroke="var(--uart)" stroke-width="1.5" stroke-dasharray="7 5" transform="rotate(75 850 230)"/>
+      <rect x="730" y="170" width="240" height="120" rx="30" fill="var(--sheet)" fill-opacity="0.7" stroke="currentColor" stroke-width="2"/>
+      <rect class="part" x="802" y="200" width="96" height="90" rx="10"/>
+      <line class="cl" x1="840" y1="230" x2="860" y2="230"/><line class="cl" x1="850" y1="220" x2="850" y2="240"/>
+      <text class="t-m" x="850" y="384" text-anchor="middle">屏幕朝向 ↓</text>
+      <text class="t" x="850" y="412" text-anchor="middle">头部转动 ±75°</text>
+      <text class="t-m" x="850" y="430" text-anchor="middle">扫掠直径约 89</text>
+      <text class="t-m" x="850" y="448" text-anchor="middle">头壳在轮子上方</text>
+      <text class="t-m" x="850" y="466" text-anchor="middle">最小间隙约 30，不干涉</text>
+    </svg>
+    </div>
+    <figcaption>按 3 像素 : 1 mm 绘制，侧视图里的虚线圆是轮毂电机本体，俯视图头壳中间的方块是摄像头舱。头部尺寸与图 2 一致。电机和舵机的外形是假设值，见下表。</figcaption>
+  </figure>
+
+  <h3>尺寸对比</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>项目</th><th>原机</th><th>本设计</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>总高</td><td class="pin">139</td><td class="pin">192</td><td>圆头要包住 Ø52 的 StopWatch，头顶再加摄像头舱</td></tr>
+      <tr><td>总宽</td><td class="pin">约 61</td><td class="pin">90</td><td>重心变高后需要更宽的轮距；底盘内腔也更好布线</td></tr>
+      <tr><td>头部</td><td class="pin">无资料</td><td class="pin">Ø80 × 深 40</td><td>StopWatch 四周留 14 的壳体和卡扣位置</td></tr>
+      <tr><td>摄像头舱</td><td class="pin">无</td><td class="pin">32 × 28 × 30</td><td>包住 AtomS3R-M12，镜头前留罩</td></tr>
+      <tr><td>轮径</td><td class="pin">无资料</td><td class="pin">70</td><td>过坎能力更好，和放大后的机身比例协调</td></tr>
+      <tr><td>电池舱</td><td class="pin">装 500 mAh</td><td class="pin">50 × 40 × 25</td><td>可换 1000 mAh 级的 2S 电池，重量在低处有利于平衡</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>图 3 用到的假设尺寸</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>零件</th><th>图中取值</th><th>依据</th><th>需要量的尺寸</th></tr></thead>
+    <tbody>
+      <tr><td>轮毂电机 KP4012</td><td class="pin">Ø40 × 12</td><td>按型号名猜的</td><td>外径、厚度、固定孔位、出线位置</td></tr>
+      <tr><td>自制轮圈加轮胎</td><td class="pin">Ø70 × 16</td><td>自己设计，可调</td><td>由电机外径和力矩决定上限</td></tr>
+      <tr><td>头部舵机 EM3</td><td class="pin">23 × 12 × 23</td><td>按常见微型舵机估</td><td>外形、输出轴位置、安装耳</td></tr>
+      <tr><td>供电板</td><td class="pin">46 × 50 × 4</td><td>自己设计，可调</td><td>由降压模块和充电方案决定</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>放大有一个代价要先验证：轮径从假设的 56 加到 70，同样的电机力矩产生的驱动力会少约两成，而机身更高更重。KP4012 的额定力矩我没有数据，拿到电机后先实测，力矩不够就把轮径收回去。</p>
+</section>
+
+<section>
+  <h2><span class="no">表 1</span>StopWatch 引脚分配</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>用途</th><th>StopWatch 引脚</th><th>接到</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>电机总线发送</td><td class="pin">G10（Grove）</td><td>合并电路</td><td>原固件是 GPIO 46，在 StopWatch 上被屏幕占用</td></tr>
+      <tr><td>电机总线接收</td><td class="pin">G11（Grove）</td><td>合并电路</td><td>原固件是 GPIO 38，同样被屏幕占用</td></tr>
+      <tr><td>摄像头串口发送</td><td class="pin">G3（背面排针）</td><td>AtomS3R-M12 的 G1</td><td>发拍照和休眠命令</td></tr>
+      <tr><td>摄像头串口接收</td><td class="pin">G4（背面排针）</td><td>AtomS3R-M12 的 G2</td><td>收 JPEG 数据</td></tr>
+      <tr><td>对话键</td><td class="pin">G2（黄键）</td><td>板载</td><td>替代原来的 BOOT 键</td></tr>
+      <tr><td>动作键</td><td class="pin">G1（蓝键）</td><td>板载</td><td>替代原来的 GPIO 3 触摸键</td></tr>
+      <tr><td>备用</td><td class="pin">G5 – G9</td><td>未接</td><td>留给以后扩展</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="no">表 2</span>供电和线束</h2>
+  <div class="two">
+    <div>
+      <h3>颈部线束（4 芯）</h3>
+      <div class="tablewrap">
+      <table>
+        <thead><tr><th>芯</th><th>信号</th><th>方向</th></tr></thead>
+        <tbody>
+          <tr><td class="pin">1</td><td>5 V</td><td>机身 → 头部</td></tr>
+          <tr><td class="pin">2</td><td>地</td><td>公共</td></tr>
+          <tr><td class="pin">3</td><td>总线发送</td><td>头部 → 机身</td></tr>
+          <tr><td class="pin">4</td><td>总线接收</td><td>机身 → 头部</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div>
+      <h3>5 V 负载</h3>
+      <div class="tablewrap">
+      <table>
+        <thead><tr><th>负载</th><th>预留电流</th><th>依据</th></tr></thead>
+        <tbody>
+          <tr><td>StopWatch</td><td class="pin">1 A</td><td>估算，含内置电池充电最高 425 mA</td></tr>
+          <tr><td>AtomS3R-M12</td><td class="pin">0.5 A</td><td>估算，官方未给工作电流</td></tr>
+          <tr><td>降压模块选型</td><td class="pin">≥ 2 A</td><td>留余量</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="no">待确认</span>动手前要查清的事</h2>
+  <div class="open">
+    <ol>
+      <li><strong>总线是单线还是双线。</strong>飞特系舵机通常是单线半双工，所以图 1 画了合并电路。拿到原主控板后看它到电机的线是 3 根还是 4 根。如果原板保留下来当底板，合并电路可以直接用它上面的。</li>
+      <li><strong>总线逻辑电平。</strong>StopWatch 是 3.3 V 引脚。电机信号线如果是 5 V 电平，合并电路里要带电平转换。</li>
+      <li><strong>StopWatch 的版本。</strong>v1.0 机身贴纸上标 BAT 的脚实际是 5V 输入，v1.0.1 才改对。本图按最稳妥的方式从 USB-C 口供电，不受版本影响。</li>
+      <li><strong>电机力矩够不够带 70 的轮子。</strong>放大版的轮径、机身高度和重量都增加了。拿到电机后先实测力矩，不够就把轮径收小。</li>
+      <li><strong>电机、舵机、电池的实物尺寸。</strong>图 3 下方的表列出了要量的项目。电机和舵机到手后才能把底盘从概念图推进到可打印的模型。</li>
+      <li><strong>USB-C 插头的空间。</strong>StopWatch 从 USB-C 取电，插头会从侧面伸出。需要弯头线或在外壳上让位，按实物接口位置定。</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

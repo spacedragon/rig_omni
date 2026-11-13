@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}</style>
+<title>StopWatch 自平衡机器人总览</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* 布局：一张产品总览海报。左列外观，中列爆炸图，右列架构、供电和特点；窄屏时依次堆叠。 */
+:root {
+  --bg: #e9eef6; --panel: #ffffff; --fg: #0f1b33; --muted: #55637d; --line: #d3dbe8;
+  --brand: #1b4fc4; --brand-fg: #ffffff;
+  --t-blue: #e6effd; --t-orange: #ffeedd; --t-green: #e2f5e8; --t-amber: #fff3d6;
+  --s-blue: #4f7fe0; --s-orange: #e2812f; --s-green: #37a05d; --s-amber: #cf9a1c;
+  /* 机器人本体的颜色，两个主题下相同 */
+  --shell: #f2f4f8; --shell2: #dde3ec; --edge: #8f9bb0; --dark: #1b2230; --black: #070a10;
+  --glow: #3fd8f5; --blush: #ff6fb0; --pcb: #2f9e63; --batt: #2d6fe3; --keyy: #f5b82e; --keyb: #3b82f6;
+  --font-head: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --font-text: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1120; --panel: #131b2e; --fg: #e6ecf7; --muted: #9aa8c0; --line: #26324a;
+    --brand: #3d73e6; --t-blue: #172a4d; --t-orange: #3a2716; --t-green: #14321f; --t-amber: #332a10;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1120; --panel: #131b2e; --fg: #e6ecf7; --muted: #9aa8c0; --line: #26324a;
+  --brand: #3d73e6; --t-blue: #172a4d; --t-orange: #3a2716; --t-green: #14321f; --t-amber: #332a10;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-text); font-size: 14.5px; line-height: 1.6;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+header h1 { font-family: var(--font-head); font-size: clamp(26px, 3.6vw, 44px); line-height: 1.15; font-weight: 700; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+header p { margin: 8px 0 0; font-size: clamp(15px, 1.6vw, 20px); color: var(--muted); }
+header .rule { width: 56px; height: 4px; background: var(--brand); border-radius: 2px; margin-top: 14px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr 1.15fr; gap: 16px; align-items: start; }
+@media (max-width: 1080px) { .grid { grid-template-columns: 1fr 1fr; } .col-right { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pill { align-self: flex-start; background: var(--brand); color: var(--brand-fg); font-family: var(--font-head); font-weight: 600; font-size: 15px; padding: 5px 16px; border-radius: 999px; margin: 0; }
+.panel svg { display: block; width: 100%; height: auto; color: var(--fg); font-family: var(--font-text); }
+.hero { background: linear-gradient(180deg, var(--t-blue), var(--panel) 70%); }
+
+.spec { display: flex; flex-direction: column; gap: 10px; }
+.spec div { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--panel); }
+.spec h3 { font-family: var(--font-head); font-size: 15.5px; margin: 0 0 2px; font-weight: 600; }
+.spec ul { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: 13.5px; }
+.strip { background: var(--brand); color: var(--brand-fg); border-radius: 14px; padding: 10px 16px; font-weight: 600; font-size: 14.5px; }
+
+.feat { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.feat div { border-left: 3px solid var(--brand); padding-left: 10px; }
+.feat b { display: block; font-family: var(--font-head); font-size: 14.5px; }
+.feat span { color: var(--muted); font-size: 13px; }
+.diff { font-size: 13.5px; color: var(--muted); }
+.diff ul { margin: 4px 0 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 4px; }
+.diff b { color: var(--fg); font-weight: 600; }
+
+/* SVG 文字与部件 */
+.lb { fill: currentColor; font-size: 13px; font-weight: 600; }
+.ls { fill: var(--muted); font-size: 11.5px; }
+.lead { stroke: var(--s-blue); stroke-width: 1.2; fill: none; }
+.axis { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 5; fill: none; }
+.sh { fill: var(--shell); stroke: var(--edge); stroke-width: 1.5; }
+.sh2 { fill: var(--shell2); stroke: var(--edge); stroke-width: 1.2; }
+.dk { fill: var(--dark); stroke: var(--black); stroke-width: 1; }
+.bk { fill: var(--black); }
+.eye { fill: none; stroke: var(--glow); stroke-linecap: round; }
+.blush { stroke: var(--blush); stroke-linecap: round; fill: none; }
+.glowf { fill: var(--glow); }
+.bx { stroke-width: 1.5; }
+.bx-blue { fill: var(--t-blue); stroke: var(--s-blue); }
+.bx-orange { fill: var(--t-orange); stroke: var(--s-orange); }
+.bx-green { fill: var(--t-green); stroke: var(--s-green); }
+.bx-amber { fill: var(--t-amber); stroke: var(--s-amber); }
+.bt { fill: currentColor; font-size: 13px; font-weight: 700; font-family: var(--font-head); }
+.bs { fill: currentColor; font-size: 11.5px; }
+.wire { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.ah { fill: currentColor; }
+.wl { fill: var(--muted); font-size: 11px; font-weight: 600; }
+</style>
+
+</head>
+<body>
+<div class="page">
+<header>
+  <h1>StopWatch 圆形头部 · 双轮自平衡 AI 机器人</h1>
+  <p>单主控方案 · 不使用 RIG-Hover 原装主控板</p>
+  <div class="rule"></div>
+</header>
+
+<div class="grid">
+
+<!-- ================= 左列：外观 ================= -->
+<div class="col">
+  <div class="panel hero">
+    <h2 class="pill">整机外观</h2>
+    <svg viewBox="0 0 420 600" role="img" aria-label="机器人正面外观：两个大轮夹着底盘，细颈上是圆形头部，头部正面是 StopWatch 的圆屏，显示笑脸，头顶是摄像头舱。整机高约 186 毫米，宽 90 毫米。">
+      <ellipse cx="210" cy="563" rx="140" ry="8" fill="var(--edge)" opacity="0.35"/>
+      <!-- 轮子 -->
+      <rect class="dk" x="93" y="378" width="42" height="182" rx="16"/>
+      <rect class="dk" x="285" y="378" width="42" height="182" rx="16"/>
+      <g stroke="var(--edge)" stroke-width="2" opacity="0.5">
+        <line x1="99" y1="410" x2="129" y2="410"/><line x1="99" y1="440" x2="129" y2="440"/><line x1="99" y1="470" x2="129" y2="470"/><line x1="99" y1="500" x2="129" y2="500"/><line x1="99" y1="530" x2="129" y2="530"/>
+        <line x1="291" y1="410" x2="321" y2="410"/><line x1="291" y1="440" x2="321" y2="440"/><line x1="291" y1="470" x2="321" y2="470"/><line x1="291" y1="500" x2="321" y2="500"/><line x1="291" y1="530" x2="321" y2="530"/>
+      </g>
+      <rect class="glowf" x="134" y="420" width="3" height="98" rx="1.5"/>
+      <rect class="glowf" x="283" y="420" width="3" height="98" rx="1.5"/>
+      <!-- 底盘 -->
+      <rect class="sh" x="140" y="368" width="140" height="166" rx="16"/>
+      <rect class="sh2" x="154" y="388" width="112" height="78" rx="10"/>
+      <rect class="glowf" x="185" y="500" width="50" height="6" rx="3"/>
+      <!-- 颈 -->
+      <rect class="dk" x="192" y="334" width="36" height="38" rx="4"/>
+      <rect class="sh" x="178" y="362" width="64" height="10" rx="5"/>
+      <!-- 摄像头舱 -->
+      <rect class="sh" x="171" y="76" width="78" height="76" rx="16"/>
+      <rect class="dk" x="181" y="86" width="58" height="46" rx="9"/>
+      <circle class="bk" cx="210" cy="109" r="17"/>
+      <circle cx="210" cy="109" r="11" fill="none" stroke="var(--edge)" stroke-width="1.5"/>
+      <circle cx="210" cy="109" r="6" fill="var(--batt)" opacity="0.7"/>
+      <circle cx="205" cy="104" r="2.5" fill="var(--shell)"/>
+      <!-- 头 -->
+      <circle class="sh" cx="210" cy="236" r="104"/>
+      <path d="M 122 200 A 96 96 0 0 1 250 146" fill="none" stroke="var(--panel)" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+      <!-- StopWatch -->
+      <rect x="136" y="208" width="9" height="30" rx="3" fill="var(--keyy)"/>
+      <rect x="275" y="208" width="9" height="30" rx="3" fill="var(--keyb)"/>
+      <circle class="dk" cx="210" cy="236" r="67.5"/>
+      <circle class="bk" cx="210" cy="236" r="58"/>
+      <path class="eye" stroke-width="7" d="M 176 240 a 14 14 0 0 1 28 0"/>
+      <path class="eye" stroke-width="7" d="M 216 240 a 14 14 0 0 1 28 0"/>
+      <g class="blush" stroke-width="2.5">
+        <line x1="172" y1="258" x2="170" y2="264"/><line x1="179" y1="258" x2="177" y2="264"/>
+        <line x1="241" y1="258" x2="243" y2="264"/><line x1="248" y1="258" x2="250" y2="264"/>
+      </g>
+      <!-- 尺寸 -->
+      <g class="axis"><line x1="50" y1="76" x2="50" y2="560"/><line x1="42" y1="76" x2="58" y2="76"/><line x1="42" y1="560" x2="58" y2="560"/></g>
+      <text class="ls" x="40" y="322" text-anchor="middle" transform="rotate(-90 40 322)">高约 186 mm</text>
+      <g class="axis"><line x1="93" y1="582" x2="327" y2="582"/></g>
+      <text class="ls" x="210" y="597" text-anchor="middle">宽 90 mm</text>
+    </svg>
+    <div class="spec">
+      <div><h3>AtomS3R-M12 摄像头</h3><ul><li>OV3660 · 300 万像素 · 视场角 120°</li><li>自带 ESP32-S3，负责拍照和压缩</li><li>串口把照片交给 StopWatch</li></ul></div>
+      <div><h3>M5Stack StopWatch 主控</h3><ul><li>ESP32-S3 · 1.75 英寸圆形 AMOLED（466 × 466）</li><li>内置麦克风、扬声器和姿态传感器</li><li>运行移植后的 RIG-Hover 自平衡固件</li></ul></div>
+      <div><h3>双轮自平衡底盘</h3><ul><li>KP4012 轮毂电机 × 2，轮径 70 mm</li><li>EM3 串口舵机带动头部左右转</li><li>2S 7.4V 电池和一块供电板</li></ul></div>
+    </div>
+    <div class="strip">底盘里没有单片机，只有电机、电池和供电板</div>
+  </div>
+</div>
+
+<!-- ================= 中列：爆炸图 ================= -->
+<div class="col">
+  <div class="panel">
+    <h2 class="pill">结构爆炸图（主要部件）</h2>
+    <svg viewBox="0 0 440 740" role="img" aria-label="结构爆炸图，从上到下：摄像头罩、AtomS3R-M12、头部外壳、StopWatch、头部支架、EM3 舵机、供电板、2S 电池、带两个轮毂电机的底盘外壳、底盘下盖。">
+      <line class="axis" x1="140" y1="10" x2="140" y2="726"/>
+      <!-- 1 摄像头罩 -->
+      <path class="sh" d="M 100 46 V 34 a 18 18 0 0 1 18 -18 h 44 a 18 18 0 0 1 18 18 V 46 Z"/>
+      <path class="lead" d="M 180 32 H 244"/><text class="lb" x="250" y="30">摄像头罩</text><text class="ls" x="250" y="46">3D 打印</text>
+      <!-- 2 摄像头 -->
+      <rect class="dk" x="117" y="62" width="46" height="42" rx="6"/>
+      <circle class="bk" cx="140" cy="83" r="13"/><circle cx="140" cy="83" r="7" fill="var(--batt)" opacity="0.7"/>
+      <path class="lead" d="M 163 83 H 244"/><text class="lb" x="250" y="81">AtomS3R-M12</text><text class="ls" x="250" y="97">摄像头模块</text>
+      <!-- 3 头部外壳 -->
+      <circle class="sh" cx="140" cy="182" r="62"/>
+      <circle cx="140" cy="182" r="44" fill="var(--panel)" stroke="var(--edge)" stroke-width="1.2"/>
+      <path class="lead" d="M 202 182 H 244"/><text class="lb" x="250" y="180">头部外壳</text><text class="ls" x="250" y="196">3D 打印，正面开圆窗</text>
+      <!-- 4 StopWatch -->
+      <rect x="92" y="290" width="6" height="20" rx="2" fill="var(--keyy)"/><rect x="182" y="290" width="6" height="20" rx="2" fill="var(--keyb)"/>
+      <circle class="dk" cx="140" cy="308" r="44"/>
+      <circle class="bk" cx="140" cy="308" r="38"/>
+      <path class="eye" stroke-width="4.5" d="M 118 311 a 9 9 0 0 1 18 0"/><path class="eye" stroke-width="4.5" d="M 144 311 a 9 9 0 0 1 18 0"/>
+      <path class="lead" d="M 184 308 H 244"/><text class="lb" x="250" y="306">StopWatch</text><text class="ls" x="250" y="322">主控 · 屏幕 · 音频 · 姿态</text>
+      <!-- 5 头部支架 -->
+      <rect class="sh" x="96" y="372" width="88" height="13" rx="5"/><rect class="sh2" x="128" y="385" width="24" height="9" rx="2"/>
+      <path class="lead" d="M 184 379 H 244"/><text class="lb" x="250" y="377">头部支架与舵盘</text><text class="ls" x="250" y="393">3D 打印</text>
+      <!-- 6 舵机 -->
+      <rect class="sh2" x="134" y="408" width="12" height="8" rx="1"/>
+      <rect class="dk" x="120" y="416" width="40" height="40" rx="3"/>
+      <rect class="sh2" x="112" y="424" width="56" height="5" rx="1"/>
+      <path class="lead" d="M 168 438 H 244"/><text class="lb" x="250" y="436">EM3 串口舵机</text><text class="ls" x="250" y="452">头部左右转动</text>
+      <!-- 7 供电板 -->
+      <rect x="96" y="482" width="88" height="10" rx="2" fill="var(--pcb)" stroke="var(--dark)" stroke-width="1"/>
+      <rect class="dk" x="104" y="474" width="14" height="8" rx="1"/><rect class="sh2" x="126" y="476" width="20" height="6" rx="1"/><rect class="dk" x="156" y="472" width="18" height="10" rx="1"/>
+      <path class="lead" d="M 184 486 H 244"/><text class="lb" x="250" y="480">供电板</text><text class="ls" x="250" y="496">5V 降压 · 收发合并 · 充电保护</text>
+      <!-- 8 电池 -->
+      <path d="M 98 520 h -12 M 98 530 h -12" stroke="var(--blush)" stroke-width="2" fill="none"/>
+      <rect x="98" y="510" width="84" height="38" rx="9" fill="var(--batt)" stroke="var(--dark)" stroke-width="1"/>
+      <rect x="110" y="510" width="6" height="38" fill="var(--shell)" opacity="0.35"/>
+      <path class="lead" d="M 182 529 H 244"/><text class="lb" x="250" y="527">2S 7.4V 锂电池</text><text class="ls" x="250" y="543">带保护板</text>
+      <!-- 9 底盘与轮 -->
+      <rect class="dk" x="60" y="564" width="28" height="120" rx="11"/><rect class="dk" x="192" y="564" width="28" height="120" rx="11"/>
+      <rect class="glowf" x="87" y="596" width="2.5" height="56" rx="1"/><rect class="glowf" x="190.5" y="596" width="2.5" height="56" rx="1"/>
+      <rect class="sh" x="94" y="572" width="92" height="104" rx="10"/>
+      <rect class="sh2" x="106" y="586" width="68" height="44" rx="6"/>
+      <path class="lead" d="M 220 600 H 244"/><text class="lb" x="250" y="598">KP4012 轮毂电机 × 2</text><text class="ls" x="250" y="614">外套自制轮圈，轮径 70</text>
+      <path class="lead" d="M 186 652 H 244"/><text class="lb" x="250" y="650">底盘外壳</text><text class="ls" x="250" y="666">3D 打印</text>
+      <!-- 10 下盖 -->
+      <rect class="sh" x="94" y="702" width="92" height="12" rx="4"/>
+      <path class="lead" d="M 186 708 H 244"/><text class="lb" x="250" y="712">底盘下盖</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ================= 右列 ================= -->
+<div class="col col-right">
+  <div class="panel">
+    <h2 class="pill">系统架构与数据流</h2>
+    <svg viewBox="0 0 480 350" role="img" aria-label="系统架构：AtomS3R-M12 通过串口把照片交给 StopWatch；StopWatch 通过 Wi-Fi 连接远程 Agent；StopWatch 通过 1 兆波特的串口经收发合并电路，控制两个 KP4012 轮毂电机和 EM3 头部舵机。">
+      <defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M 0 0 L 10 5 L 0 10 z"/></marker></defs>
+      <rect class="bx bx-blue" x="14" y="14" width="210" height="88" rx="12"/>
+      <text class="bt" x="28" y="38">AtomS3R-M12</text>
+      <text class="bs" x="28" y="58">· 拍照，输出 JPEG</text>
+      <text class="bs" x="28" y="75">· 不拍时休眠</text>
+      <text class="bs" x="28" y="92">· 自带 ESP32-S3</text>
+
+      <rect class="bx bx-blue" x="296" y="14" width="170" height="88" rx="30"/>
+      <text class="bt" x="381" y="50" text-anchor="middle">远程 Agent</text>
+      <text class="bs" x="381" y="70" text-anchor="middle">语音对话 · 看图理解</text>
+
+      <rect class="bx bx-orange" x="14" y="152" width="210" height="184" rx="12"/>
+      <text class="bt" x="28" y="178" font-size="15">StopWatch 主控</text>
+      <text class="bs" x="28" y="200">· 自平衡控制（RIG-Hover 逻辑）</text>
+      <text class="bs" x="28" y="219">· 姿态融合（内置 BMI270）</text>
+      <text class="bs" x="28" y="238">· 语音交互与 Agent 通信</text>
+      <text class="bs" x="28" y="257">· 表情显示与触摸</text>
+      <text class="bs" x="28" y="276">· 麦克风与扬声器（ES8311）</text>
+      <text class="bs" x="28" y="295">· 向摄像头要照片并上传</text>
+
+      <path class="wire" d="M 119 104 V 150" marker-start="url(#ah1)" marker-end="url(#ah1)"/>
+      <text class="wl" x="128" y="131">串口 921600</text>
+
+      <path class="wire" d="M 226 176 H 381 V 104" marker-start="url(#ah1)" marker-end="url(#ah1)"/>
+      <text class="wl" x="300" y="168">Wi-Fi</text>
+
+      <rect class="bx bx-green" x="296" y="210" width="170" height="50" rx="10"/>
+      <text class="bt" x="381" y="231" text-anchor="middle">总线接口</text>
+      <text class="bs" x="381" y="249" text-anchor="middle">电平与收发合并</text>
+      <path class="wire" d="M 226 235 H 294" marker-start="url(#ah1)" marker-end="url(#ah1)"/>
+      <text class="wl" x="260" y="226" text-anchor="middle">1 Mbps</text>
+
+      <rect class="bx bx-amber" x="296" y="290" width="80" height="46" rx="8"/>
+      <text class="bt" x="336" y="310" text-anchor="middle" font-size="12">KP4012</text>
+      <text class="bs" x="336" y="326" text-anchor="middle">左右轮 × 2</text>
+      <rect class="bx bx-amber" x="386" y="290" width="80" height="46" rx="8"/>
+      <text class="bt" x="426" y="310" text-anchor="middle" font-size="12">EM3</text>
+      <text class="bs" x="426" y="326" text-anchor="middle">头部舵机</text>
+      <path class="wire" d="M 336 262 V 288" marker-end="url(#ah1)"/>
+      <path class="wire" d="M 426 262 V 288" marker-end="url(#ah1)"/>
+    </svg>
+  </div>
+
+  <div class="panel">
+    <h2 class="pill">供电系统</h2>
+    <svg viewBox="0 0 480 150" role="img" aria-label="供电：2S 7.4 伏电池经过保护、开关和充电电路后分两路，一路降压到 5 伏给 StopWatch 和 AtomS3R-M12，一路 7.4 伏直接给两个轮毂电机和头部舵机。">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M 0 0 L 10 5 L 0 10 z"/></marker></defs>
+      <rect class="bx bx-amber" x="10" y="48" width="118" height="54" rx="10"/>
+      <text class="bt" x="69" y="71" text-anchor="middle">2S 7.4V 电池</text>
+      <text class="bs" x="69" y="89" text-anchor="middle">主电源</text>
+      <rect class="bx bx-blue" x="166" y="48" width="108" height="54" rx="10"/>
+      <text class="bt" x="220" y="71" text-anchor="middle">电源管理</text>
+      <text class="bs" x="220" y="89" text-anchor="middle">保护 · 开关 · 充电</text>
+      <rect class="bx bx-blue" x="312" y="8" width="158" height="54" rx="10"/>
+      <text class="bt" x="391" y="31" text-anchor="middle">5V 降压</text>
+      <text class="bs" x="391" y="49" text-anchor="middle">StopWatch + AtomS3R-M12</text>
+      <rect class="bx bx-amber" x="312" y="88" width="158" height="54" rx="10"/>
+      <text class="bt" x="391" y="111" text-anchor="middle">7.4V 直供</text>
+      <text class="bs" x="391" y="129" text-anchor="middle">KP4012 × 2 + EM3</text>
+      <path class="wire" d="M 130 75 H 164" marker-end="url(#ah2)"/>
+      <path class="wire" d="M 276 75 H 292 V 35 H 310" marker-end="url(#ah2)"/>
+      <path class="wire" d="M 292 75 V 115 H 310" marker-end="url(#ah2)"/>
+    </svg>
+  </div>
+
+  <div class="panel">
+    <h2 class="pill">关键特点</h2>
+    <div class="feat">
+      <div><b>单主控</b><span>平衡、语音、表情都在 StopWatch 上</span></div>
+      <div><b>独立摄像头</b><span>AtomS3R-M12 自己拍照压缩</span></div>
+      <div><b>底盘无单片机</b><span>只有电机、电池和供电板</span></div>
+      <div><b>开源固件</b><span>在 RIG-Omni 的 Hover 板型上移植</span></div>
+    </div>
+  </div>
+
+  <div class="panel diff">
+    <h2 class="pill">和参考图不同的三处</h2>
+    <ul>
+      <li><b>姿态传感器在头部。</b>用 StopWatch 内置的 BMI270，底盘不再放 QMI8658C。原固件按头部转角修正俯仰角，传感器要跟着头转才能直接沿用。</li>
+      <li><b>摄像头走串口。</b>照片由 StopWatch 取回再上传，摄像头不用单独配网。想要实时视频时再改成 Wi-Fi 直传。</li>
+      <li><b>底盘电路合成一块供电板。</b>降压、收发合并、充电保护放在同一块板上，少走线。</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</div>
+</body>
+</html>
