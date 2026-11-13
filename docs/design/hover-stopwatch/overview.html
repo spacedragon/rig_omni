@@ -94,7 +94,7 @@ header .rule { width: 56px; height: 4px; background: var(--brand); border-radius
 <body>
 <div class="page">
 <header>
-  <h1>StopWatch 圆形头部 · 双轮自平衡 AI 机器人</h1>
+  <h1>StopWatch 圆脸方头 · 双轮自平衡 AI 机器人</h1>
   <p>单主控方案 · 不使用 RIG-Hover 原装主控板</p>
   <div class="rule"></div>
 </header>
@@ -105,34 +105,40 @@ header .rule { width: 56px; height: 4px; background: var(--brand); border-radius
 <div class="col">
   <div class="panel hero">
     <h2 class="pill">整机外观</h2>
-    <svg viewBox="0 0 420 600" role="img" aria-label="机器人正面外观：两个大轮夹着底盘，细颈上是圆形头部，头部正面是 StopWatch 的圆屏，显示笑脸，头顶是摄像头舱。整机高约 186 毫米，宽 90 毫米。">
+    <svg viewBox="0 0 420 600" role="img" aria-label="机器人正面外观：两个大轮夹着底盘，细颈上是方盒形头部，正面嵌着圆形的 StopWatch 当脸，显示笑脸，头顶是摄像头舱。整机高约 176 毫米，宽 90 毫米。">
       <ellipse cx="210" cy="563" rx="140" ry="8" fill="var(--edge)" opacity="0.35"/>
       <!-- 轮子 -->
-      <rect class="dk" x="93" y="378" width="42" height="182" rx="16"/>
-      <rect class="dk" x="285" y="378" width="42" height="182" rx="16"/>
+      <rect class="dk" x="93" y="409" width="52" height="151" rx="18"/>
+      <rect class="dk" x="275" y="409" width="52" height="151" rx="18"/>
       <g stroke="var(--edge)" stroke-width="2" opacity="0.5">
-        <line x1="99" y1="410" x2="129" y2="410"/><line x1="99" y1="440" x2="129" y2="440"/><line x1="99" y1="470" x2="129" y2="470"/><line x1="99" y1="500" x2="129" y2="500"/><line x1="99" y1="530" x2="129" y2="530"/>
-        <line x1="291" y1="410" x2="321" y2="410"/><line x1="291" y1="440" x2="321" y2="440"/><line x1="291" y1="470" x2="321" y2="470"/><line x1="291" y1="500" x2="321" y2="500"/><line x1="291" y1="530" x2="321" y2="530"/>
+        <line x1="100" y1="435" x2="138" y2="435"/><line x1="100" y1="460" x2="138" y2="460"/><line x1="100" y1="485" x2="138" y2="485"/><line x1="100" y1="510" x2="138" y2="510"/><line x1="100" y1="535" x2="138" y2="535"/>
+        <line x1="282" y1="435" x2="320" y2="435"/><line x1="282" y1="460" x2="320" y2="460"/><line x1="282" y1="485" x2="320" y2="485"/><line x1="282" y1="510" x2="320" y2="510"/><line x1="282" y1="535" x2="320" y2="535"/>
       </g>
-      <rect class="glowf" x="134" y="420" width="3" height="98" rx="1.5"/>
-      <rect class="glowf" x="283" y="420" width="3" height="98" rx="1.5"/>
+      <rect class="glowf" x="144" y="445" width="3" height="80" rx="1.5"/>
+      <rect class="glowf" x="273" y="445" width="3" height="80" rx="1.5"/>
       <!-- 底盘 -->
-      <rect class="sh" x="140" y="368" width="140" height="166" rx="16"/>
-      <rect class="sh2" x="154" y="388" width="112" height="78" rx="10"/>
-      <rect class="glowf" x="185" y="500" width="50" height="6" rx="3"/>
+      <rect class="sh" x="150" y="388" width="120" height="146" rx="14"/>
+      <rect class="sh2" x="162" y="404" width="96" height="66" rx="9"/>
+      <rect class="glowf" x="185" y="505" width="50" height="6" rx="3"/>
       <!-- 颈 -->
-      <rect class="dk" x="192" y="334" width="36" height="38" rx="4"/>
-      <rect class="sh" x="178" y="362" width="64" height="10" rx="5"/>
+      <rect class="dk" x="192" y="360" width="36" height="32" rx="4"/>
+      <rect class="sh" x="178" y="382" width="64" height="10" rx="5"/>
+      <g transform="translate(0 32)">
       <!-- 摄像头舱 -->
-      <rect class="sh" x="171" y="76" width="78" height="76" rx="16"/>
-      <rect class="dk" x="181" y="86" width="58" height="46" rx="9"/>
-      <circle class="bk" cx="210" cy="109" r="17"/>
-      <circle cx="210" cy="109" r="11" fill="none" stroke="var(--edge)" stroke-width="1.5"/>
-      <circle cx="210" cy="109" r="6" fill="var(--batt)" opacity="0.7"/>
-      <circle cx="205" cy="104" r="2.5" fill="var(--shell)"/>
-      <!-- 头 -->
-      <circle class="sh" cx="210" cy="236" r="104"/>
-      <path d="M 122 200 A 96 96 0 0 1 250 146" fill="none" stroke="var(--panel)" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+      <rect class="sh" x="166" y="70" width="88" height="78" rx="10"/>
+      <rect class="dk" x="177" y="79" width="66" height="52" rx="7"/>
+      <circle class="bk" cx="210" cy="105" r="17"/>
+      <circle cx="210" cy="105" r="11" fill="none" stroke="var(--edge)" stroke-width="1.5"/>
+      <circle cx="210" cy="105" r="6" fill="var(--batt)" opacity="0.7"/>
+      <circle cx="205" cy="100" r="2.5" fill="var(--shell)"/>
+      <!-- 头：方盒 -->
+      <rect class="sh" x="121" y="142" width="178" height="188" rx="16"/>
+      <rect x="129" y="150" width="162" height="172" rx="11" fill="none" stroke="var(--shell2)" stroke-width="3"/>
+      <g class="sh2"><circle cx="134" cy="155" r="3.5"/><circle cx="286" cy="155" r="3.5"/><circle cx="134" cy="317" r="3.5"/><circle cx="286" cy="317" r="3.5"/></g>
+      <path d="M 125 300 h 10 l 9 -11" fill="none" stroke="var(--s-orange)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 295 300 h -10 l -9 -11" fill="none" stroke="var(--s-orange)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 125 172 h 10 l 9 11" fill="none" stroke="var(--s-orange)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 295 172 h -10 l -9 11" fill="none" stroke="var(--s-orange)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
       <!-- StopWatch -->
       <rect x="136" y="208" width="9" height="30" rx="3" fill="var(--keyy)"/>
       <rect x="275" y="208" width="9" height="30" rx="3" fill="var(--keyb)"/>
@@ -144,16 +150,17 @@ header .rule { width: 56px; height: 4px; background: var(--brand); border-radius
         <line x1="172" y1="258" x2="170" y2="264"/><line x1="179" y1="258" x2="177" y2="264"/>
         <line x1="241" y1="258" x2="243" y2="264"/><line x1="248" y1="258" x2="250" y2="264"/>
       </g>
+      </g>
       <!-- 尺寸 -->
-      <g class="axis"><line x1="50" y1="76" x2="50" y2="560"/><line x1="42" y1="76" x2="58" y2="76"/><line x1="42" y1="560" x2="58" y2="560"/></g>
-      <text class="ls" x="40" y="322" text-anchor="middle" transform="rotate(-90 40 322)">高约 186 mm</text>
+      <g class="axis"><line x1="50" y1="102" x2="50" y2="560"/><line x1="42" y1="102" x2="58" y2="102"/><line x1="42" y1="560" x2="58" y2="560"/></g>
+      <text class="ls" x="40" y="331" text-anchor="middle" transform="rotate(-90 40 331)">高约 176 mm</text>
       <g class="axis"><line x1="93" y1="582" x2="327" y2="582"/></g>
       <text class="ls" x="210" y="597" text-anchor="middle">宽 90 mm</text>
     </svg>
     <div class="spec">
       <div><h3>AtomS3R-M12 摄像头</h3><ul><li>OV3660 · 300 万像素 · 视场角 120°</li><li>自带 ESP32-S3，负责拍照和压缩</li><li>串口把照片交给 StopWatch</li></ul></div>
-      <div><h3>M5Stack StopWatch 主控</h3><ul><li>ESP32-S3 · 1.75 英寸圆形 AMOLED（466 × 466）</li><li>内置麦克风、扬声器和姿态传感器</li><li>运行移植后的 RIG-Hover 自平衡固件</li></ul></div>
-      <div><h3>双轮自平衡底盘</h3><ul><li>KP4012 轮毂电机 × 2，轮径 70 mm</li><li>EM3 串口舵机带动头部左右转</li><li>2S 7.4V 电池和一块供电板</li></ul></div>
+      <div><h3>M5Stack StopWatch 主控</h3><ul><li>ESP32-S3 · 1.75 英寸圆形 AMOLED（466 × 466）</li><li>内置麦克风、扬声器和姿态传感器</li><li>嵌在方形头壳正面当脸，两侧实体键经外壳按压片引出</li><li>运行移植后的 RIG-Hover 自平衡固件</li></ul></div>
+      <div><h3>双轮自平衡底盘</h3><ul><li>KP4012 轮毂电机 × 2，沿用套件轮胎，轮径约 58 mm</li><li>EM3 串口舵机带动头部左右转</li><li>2S 7.4V 电池和一块供电板</li></ul></div>
     </div>
     <div class="strip">底盘里没有单片机，只有电机、电池和供电板</div>
   </div>
@@ -166,16 +173,16 @@ header .rule { width: 56px; height: 4px; background: var(--brand); border-radius
     <svg viewBox="0 0 440 740" role="img" aria-label="结构爆炸图，从上到下：摄像头罩、AtomS3R-M12、头部外壳、StopWatch、头部支架、EM3 舵机、供电板、2S 电池、带两个轮毂电机的底盘外壳、底盘下盖。">
       <line class="axis" x1="140" y1="10" x2="140" y2="726"/>
       <!-- 1 摄像头罩 -->
-      <path class="sh" d="M 100 46 V 34 a 18 18 0 0 1 18 -18 h 44 a 18 18 0 0 1 18 18 V 46 Z"/>
+      <rect class="sh" x="108" y="16" width="64" height="32" rx="7"/>
       <path class="lead" d="M 180 32 H 244"/><text class="lb" x="250" y="30">摄像头罩</text><text class="ls" x="250" y="46">3D 打印</text>
       <!-- 2 摄像头 -->
       <rect class="dk" x="117" y="62" width="46" height="42" rx="6"/>
       <circle class="bk" cx="140" cy="83" r="13"/><circle cx="140" cy="83" r="7" fill="var(--batt)" opacity="0.7"/>
       <path class="lead" d="M 163 83 H 244"/><text class="lb" x="250" y="81">AtomS3R-M12</text><text class="ls" x="250" y="97">摄像头模块</text>
       <!-- 3 头部外壳 -->
-      <circle class="sh" cx="140" cy="182" r="62"/>
-      <circle cx="140" cy="182" r="44" fill="var(--panel)" stroke="var(--edge)" stroke-width="1.2"/>
-      <path class="lead" d="M 202 182 H 244"/><text class="lb" x="250" y="180">头部外壳</text><text class="ls" x="250" y="196">3D 打印，正面开圆窗</text>
+      <rect class="sh" x="84" y="124" width="112" height="118" rx="12"/>
+      <circle cx="140" cy="183" r="44" fill="var(--panel)" stroke="var(--edge)" stroke-width="1.2"/>
+      <path class="lead" d="M 196 182 H 244"/><text class="lb" x="250" y="180">头部外壳</text><text class="ls" x="250" y="196">方盒，3D 打印，正面开圆窗</text>
       <!-- 4 StopWatch -->
       <rect x="92" y="290" width="6" height="20" rx="2" fill="var(--keyy)"/><rect x="182" y="290" width="6" height="20" rx="2" fill="var(--keyb)"/>
       <circle class="dk" cx="140" cy="308" r="44"/>
@@ -204,7 +211,7 @@ header .rule { width: 56px; height: 4px; background: var(--brand); border-radius
       <rect class="glowf" x="87" y="596" width="2.5" height="56" rx="1"/><rect class="glowf" x="190.5" y="596" width="2.5" height="56" rx="1"/>
       <rect class="sh" x="94" y="572" width="92" height="104" rx="10"/>
       <rect class="sh2" x="106" y="586" width="68" height="44" rx="6"/>
-      <path class="lead" d="M 220 600 H 244"/><text class="lb" x="250" y="598">KP4012 轮毂电机 × 2</text><text class="ls" x="250" y="614">外套自制轮圈，轮径 70</text>
+      <path class="lead" d="M 220 600 H 244"/><text class="lb" x="250" y="598">KP4012 轮毂电机 × 2</text><text class="ls" x="250" y="614">沿用套件轮胎，轮径约 58</text>
       <path class="lead" d="M 186 652 H 244"/><text class="lb" x="250" y="650">底盘外壳</text><text class="ls" x="250" y="666">3D 打印</text>
       <!-- 10 下盖 -->
       <rect class="sh" x="94" y="702" width="92" height="12" rx="4"/>
